@@ -32,7 +32,7 @@ from imusim.platforms.timers import Timer, IdealTimer, ParametricTimer
 from imusim.platforms.radios import Radio, IdealRadio
 from imusim.maths.vectors import vector
 from imusim.utilities.documentation import prepend_method_doc
-
+from imusim.maths.quaternions import Quaternion
 
 class IMU(Platform):
     """
@@ -85,6 +85,28 @@ class IdealIMU(StandardIMU):
         self.radio = IdealRadio(self)
         StandardIMU.__init__(self, simulation, trajectory)
 
+class IdealIMUoffset(StandardIMU):
+    """
+    An IMU with idealised models for all components.
+    """
+
+    def __init__(self,
+        positionOffset=vector(0,0,0),
+        rotationOffset=Quaternion(1,0,0,0),
+        simulation=None, trajectory=None):
+        self.accelerometer = IdealAccelerometer(self,
+                                positionOffset=positionOffset, 
+                                rotationOffset=rotationOffset)
+        self.magnetometer = IdealMagnetometer(self,
+                                positionOffset=positionOffset, 
+                                rotationOffset=rotationOffset)
+        self.gyroscope = IdealGyroscope(self,
+                                positionOffset=positionOffset, 
+                                rotationOffset=rotationOffset)
+        self.adc = IdealADC(self)
+        self.timer = IdealTimer(self)
+        self.radio = IdealRadio(self)
+        StandardIMU.__init__(self, simulation, trajectory)
 
 class MagicIMU(StandardIMU):
     """
