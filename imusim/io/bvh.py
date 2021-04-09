@@ -97,6 +97,8 @@ class BVHLoader(object):
             time = frame * self.framePeriod
             channelData = self._readFrame()
             for joint in self.model.joints:
+                order = ''
+                euler = []
                 for chan in joint.channels:
                     chanData = channelData.pop(0)
                     if chan == "Xposition":
@@ -107,10 +109,16 @@ class BVHLoader(object):
                         zPos = chanData
                     elif chan == "Xrotation":
                         xRot = chanData
+                        order += 'x'
+                        euler.append(xRot)
                     elif chan == "Yrotation":
                         yRot = chanData
+                        order += 'y'
+                        euler.append(yRot)
                     elif chan == "Zrotation":
                         zRot = chanData
+                        order += 'z'
+                        euler.append(zRot)
                     else:
                         raise RuntimeError('Unknown channel: '+chan)
 
@@ -126,7 +134,7 @@ class BVHLoader(object):
 
                 try:
                     if joint.hasChildren:
-                        q = Quaternion.fromEuler((zRot,xRot,yRot), order='zxy')
+                        q = Quaternion.fromEuler(tuple(euler), order=order) # euler = (zRot,xRot,yRot), order = zxy
                         q = convertCGtoNED(q)
                         del xRot, yRot, zRot
                         # Rotation in BVH is relative to parent joint so
